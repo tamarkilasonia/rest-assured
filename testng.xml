@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+
+<suite name="RestAssured Homework Suite" parallel="false">
+
+    <test name="Booker API Tests">
+        <classes>
+            <class name="ge.tbc.testautomation.api.tests.BookerBookingTests"/>
+        </classes>
+    </test>
+
+    <test name="Escuela API Tests">
+        <classes>
+            <class name="ge.tbc.testautomation.api.tests.EscuelaAuthTests"/>
+        </classes>
+    </test>
+
+    <test name="ToolsQA API Tests">
+        <classes>
+            <class name="ge.tbc.testautomation.api.tests.ToolsQaBooksTests"/>
+        </classes>
+    </test>
+
+</suite>
