@@ -1,73 +1,72 @@
 package ge.tbc.testautomation.steps;
 
-import ge.tbc.testautomation.api.client.BookerAuthApi;
-import ge.tbc.testautomation.api.client.BookerBookingApi;
-
-import ge.tbc.testautomation.data.model.request.booker.BookingRequest;
-import ge.tbc.testautomation.data.model.request.booker.PartialUpdateBookingRequest;
-import ge.tbc.testautomation.data.model.request.booker.TokenRequest;
-
-import ge.tbc.testautomation.data.model.response.booker.BookingResponse;
-import ge.tbc.testautomation.data.model.response.booker.CreateBookingResponse;
-import ge.tbc.testautomation.data.model.response.booker.TokenResponse;
-
-import io.restassured.response.Response;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import ge.tbc.testautomation.api.booker.BookerApi;
+import ge.tbc.testautomation.data.model.restfulbooker.requests.*;
+import ge.tbc.testautomation.data.model.restfulbooker.responses.AuthResponse;
+import ge.tbc.testautomation.data.model.restfulbooker.responses.CreateBookingResponse;
 
 public class BookerSteps {
 
-    private final BookerAuthApi authApi = new BookerAuthApi();
-    private final BookerBookingApi bookingApi = new BookerBookingApi();
+    private final BookerApi api = new BookerApi();
+    private String token;
 
-    public String createToken(TokenRequest request) {
-        Response res = authApi.createToken(request)
-                .then().statusCode(200)
-                .extract().response();
 
-        TokenResponse token = res.as(TokenResponse.class);
-        assertThat(token.getToken(), notNullValue());
-        return token.getToken();
+    public void generateToken() {
+        AuthResponse response = api.createToken(
+                AuthRequest.builder()
+                        .username("admin")
+                        .password("password123")
+                        .build()
+        );
+
+        token = response.getToken();
     }
 
-    public int createBooking(BookingRequest request) {
-        Response res = bookingApi.createBooking(request)
-                .then().statusCode(200)
-                .extract().response();
-
-        CreateBookingResponse created = res.as(CreateBookingResponse.class);
-        assertThat(created.getBookingid(), greaterThan(0));
-        return created.getBookingid();
+    public String getToken() {
+        return token;
     }
 
-    public BookingResponse getBooking(int bookingId) {
-        Response res = bookingApi.getBooking(bookingId)
-                .then().statusCode(200)
-                .extract().response();
 
-        return res.as(BookingResponse.class);
+    public int createBooking() {
+
+        CreateBookingResponse response = api.createBooking(
+                UpdateBookingRequest.builder()
+                        .firstname("Temp")
+                        .lastname("User")
+                        .totalprice(100)
+                        .depositpaid(true)
+                        .bookingdates(
+                                BookingDates.builder()
+                                        .checkin("2026-02-12")
+                                        .checkout("2026-02-15")
+                                        .build()
+                        )
+                        .additionalneeds("None")
+                        .build()
+        );
+
+        return response.getBookingId();
     }
 
-    public void partialUpdateBooking(int bookingId, String token, PartialUpdateBookingRequest request) {
-        bookingApi.partialUpdateBooking(bookingId, token, request)
-                .then().statusCode(200);
-    }
 
-    public void deleteBooking(int bookingId, String token) {
-        bookingApi.deleteBooking(bookingId, token)
-                .then().statusCode(anyOf(is(200), is(201)));
-    }
+    public UpdateBookingRequest updateBooking(int bookingId) {
 
-    public void partialUpdate(int bookingId, String token, PartialUpdateBookingRequest request) {
-        bookingApi.partialUpdateBooking(bookingId, token, request)
-                .then()
-                .statusCode(200);
-    }
+        UpdateBookingRequest request = UpdateBookingRequest.builder()
+                .firstname("Tamar")
+                .lastname("Kilasonia")
+                .totalprice(999)
+                .depositpaid(true)
+                .bookingdates(
+                        BookingDates.builder()
+                                .checkin("2026-02-12")
+                                .checkout("2026-02-20")
+                                .build()
+                )
+                .additionalneeds("Breakfast")
+                .saleprice(111)
+                .passportNo("AA123")
+                .build();
 
-    public void checkBookingDeleted(int bookingId) {
-        bookingApi.getBooking(bookingId)
-                .then()
-                .statusCode(404);
+        return api.updateBooking(bookingId, token, request);
     }
 }
