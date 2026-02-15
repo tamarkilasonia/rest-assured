@@ -8,6 +8,7 @@ import org.testng.annotations.Test;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
+
 public class BookerBookingTests {
 
     private final BookerSteps steps = new BookerSteps();
